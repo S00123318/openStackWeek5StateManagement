@@ -26,13 +26,15 @@ export class PeopleService {
   getAllPeople(): Observable<People[]> {
     return this.http.get<People[]>(this.apiURL+'/api/v1/people?sortBy=lastname')
       .pipe(
-        tap(people=>console.log(JSON.stringify(people))
+        tap(people=>
+          this.store.loadPeople(people, true)
         ));
   }
 
   createPerson(people: People): Observable<People> {
     return this.http.post<People>(this.apiURL+'/api/v1/people', people).pipe(
-      tap(value => {
+      tap(person => {
+        this.store.add([person])
       })
     );
   }
@@ -40,6 +42,7 @@ export class PeopleService {
   deletePerson(personId: string): Observable<any> {
     return this.http.delete(this.apiURL+'/api/v1/people/' + personId).pipe(
       tap(result => {
+        this.store.remove(personId);
       })
     );
   }
@@ -47,6 +50,7 @@ export class PeopleService {
   updatePerson(personId: string, person: People): Observable<any> {
     return this.http.put(this.apiURL+'/api/v1/people/' + personId, person).pipe(
       tap(result => {
+        this.store.update(personId, person);
       })
     );
   }
