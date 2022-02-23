@@ -1,4 +1,5 @@
-
+import { PeopleQuery } from '../../store/people.query';
+import { PeopleState } from '../../store/people.store';
 import { PeopleService } from '../../services/people.service';
 
 import { tap, switchMap, filter } from 'rxjs/operators';
@@ -10,33 +11,46 @@ import { Observable, Subscription, throwError } from 'rxjs';
   selector: 'app-people-list',
   templateUrl: 'people-list.component.html'
 })
-export class PeopleListComponent implements OnInit {
+export class PeopleListComponent implements OnInit, OnDestroy {
 
   personToBeUpdated: People | any;
   isUpdateActivated = false;
+  listPeopleSub: Subscription;
+  deletePeopleSub : Subscription;
+  updatePeopleSub : Subscription;
+  pstate: PeopleState;
+
+  people$: Observable<People[]> = this.peopleQuery.selectAll();
 
 
  addressBook:People[];
 
-  constructor(private PeopleService: PeopleService) {
+  constructor(private PeopleService: PeopleService, private peopleQuery: PeopleQuery) {
   }
 
   ngOnInit() {
-    this.getPeople();
+    this,this.listPeopleSub = this.peopleQuery.selectArePeopleLoaded$.pipe(
+      filter(arePeopleLoaded => !arePeopleLoaded),
+      switchMap(arePeopleLoaded => {
+        if (!arePeopleLoaded) {
+          return this.PeopleService.getAllPeople();
+        } else return '';
+      })
+    ).subscribe(result => {});
   }
 
-  getPeople() {
+ /* getPeople() {
     this.PeopleService.getAllPeople().subscribe(
       people => {
         this.addressBook=people;
         console.log("load people over network, sad face..");
       }
     )
-  }
+  }*/
 
   deletePerson(personId: string) {
-    this.PeopleService.deletePerson(personId).subscribe(result => {
-      this.getPeople();
+    this.deletePeopleSub = this.PeopleService.deletePerson(personId).subscribe(result => {
+      console.log(result);
     });
 
   }
@@ -48,7 +62,7 @@ export class PeopleListComponent implements OnInit {
 
 
   updatePerson(updateForm: { value: People; }) {
-    this.PeopleService.updatePerson(
+   this.updatePeopleSub =  this.PeopleService.updatePerson(
       this.personToBeUpdated.id, updateForm.value).subscribe(result => console.log(result)
 
     );
@@ -56,6 +70,21 @@ export class PeopleListComponent implements OnInit {
     this.personToBeUpdated = null;
   }
 
+  ngOnDestroy() {
+    
+    if(this.listPeopleSub){
+      this.listPeopleSub.unsubscribe();
+    }
+
+    if(this.deletePeopleSub){
+      this.deletePeopleSub.unsubscribe();
+    }
+
+    if(this.updatePeopleSub){
+      this.updatePeopleSub.unsubscribe();
+    }
+      
+  }
 
 }
 
