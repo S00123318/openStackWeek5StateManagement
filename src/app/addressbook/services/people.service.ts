@@ -1,8 +1,11 @@
 import { People } from '../model/people.model';
+import { PeopleStore, PeopleState } from '../store/people.store';
+import { EntityStore, EntityState } from '@datorama/akita';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+
 
 
 @Injectable()
@@ -13,10 +16,11 @@ export class PeopleService {
  // apiURL="https://620e616c585fbc3359e05f1a.mockapi.io";
   apiURL="https://621644dc7428a1d2a3617897.mockapi.io";
 
+  store: PeopleStore;
 
-
-  constructor(http: HttpClient) {
+  constructor(http: HttpClient, store: PeopleStore) {
    this.http = http;
+   this.store = store;
   }
 
   getAllPeople(): Observable<People[]> {
