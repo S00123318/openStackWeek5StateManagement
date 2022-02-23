@@ -9,7 +9,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let indi of addressBook">
+        <tr *ngFor="let indi of people$ | async ">
           <td>{{ indi.lastname }}</td>
           <td>{{ indi.firstname }}</td>
           <td>{{ indi.phone }}</td>

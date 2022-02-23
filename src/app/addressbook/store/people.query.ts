@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 import { PeopleStore, PeopleState } from './people.store';
 import { QueryEntity } from '@datorama/akita';
+import { QueryConfig, Order } from '@datorama/akita';
 
-
+@QueryConfig({
+  sortBy: 'lasname',
+  sortByOrder: Order.ASC
+})
 @Injectable({
   providedIn: 'root'
 })
